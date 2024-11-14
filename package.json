@@ -1,0 +1,21 @@
+{
+  "name": "admin-dashboard",
+  "module": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "bun --watch server.js"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@types/express": "^5.0.0",
+    "ejs": "^3.1.10",
+    "express": "^4.21.1",
+    "mysql2": "^3.11.4"
+  }
+}

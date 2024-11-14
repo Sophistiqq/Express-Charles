@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+
+  <link rel="stylesheet" href="css/index.css">
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+
+<body>
+
+  <div class="top-bar">
+    <h1>Admin Dashboard</h1>
+  </div>
+  <main>
+    <nav class="nav">
+      <a href="/"><i class="fas fa-chart-line"></i> Sales Overview</a>
+      <a href="/customers" class="active"><i class="fas fa-users"></i> Customers View</a>
+      <a href="/products"><i class="fas fa-box-open"></i> Product Management</a>
+      <a href="/orders"><i class="fas fa-shopping-cart"></i> Order Management</a>
+    </nav>
+    <div class="content">
+      <div class="customer-overview">
+        <h1>Customers Overview</h1>
+        <div class="customers-data-wrapper">
+          <div class="customers-overview-data">
+            <p>Total Customers</p>
+            <p><%= customers.length %></p>
+          </div>
+          <div class="customers-overview-data">
+            <p>Customers Today</p>
+            <p><%= customersToday %></p>
+          </div>
+          <div class="customers-overview-data">
+            <p>Customers This Week</p>
+            <p><%= customersThisweek %></p>
+          </div>
+        </div>
+      </div>
+
+      
+      <!-- Search bar for the Customers -->
+      <div class="search-bar">
+        <input type="text" placeholder="Search for customers" id="searchInput">
+        <button onclick="searchCustomers()"><i class="fas fa-search"></i></button>
+      </div>
+      <h1>Customers View</h1>
+      <!-- Render all the passed value from the server and loop over customers data-->
+      <table>
+       <tr>
+          <th onclick="sortTable(0)">Customer ID <span class="sort-icon"></span></th>
+          <th onclick="sortTable(1)">Name <span class="sort-icon"></span></th>
+          <th onclick="sortTable(2)">Email <span class="sort-icon"></span></th>
+          <th onclick="sortTable(3)">Phone <span class="sort-icon"></span></th>
+          <th onclick="sortTable(4)">Last Visit <span class="sort-icon"></span></th>
+        </tr>
+        <% customers.forEach(customer => { %>
+        <tr>
+          <td><%= customer.id%></td>
+          <td><%= customer.name %></td>
+          <td><%= customer.email %></td>
+          <td><%= customer.phone %></td>
+          <td><%= new Date(customer.last_visit).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) %></td>
+        </tr>
+        <% }) %>
+      </table>
+
+    </div>
+  </main>
+
+
+  <!-- Modal Structure -->
+  <div id="customerModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Customer Details</h2>
+      <form id="customerForm">
+        <label for="customerId">Customer ID:</label>
+        <input type="text" id="customerId" name="customerId" readonly>
+        <label for="customerName">Name:</label>
+        <input type="text" id="customerName" name="customerName">
+        <label for="customerEmail">Email:</label>
+        <input type="email" id="customerEmail" name="customerEmail">
+        <label for="customerPhone">Phone:</label>
+        <input type="text" id="customerPhone" name="customerPhone">
+        <label for="customerLastVisit">Last Visit:</label>
+        <input type="text" id="customerLastVisit" name="customerLastVisit" readonly>
+        <div class="control-buttons">
+          <button type="button" id="deleteButton">Delete</button>
+          <button type="submit">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <img src="/images/test.jpg"></img>
+</body>
+<style>
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th {
+    background-color: #f2f2f2;
+    white-space: nowrap;
+  }
+
+  th,
+  td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+  .customer-overview {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+    align-items: center;
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 1rem;
+    .customers-overview-data {
+      padding: 1.5rem;
+      text-align: center;
+      width: 30%;
+      p {
+        background-color: var(--background-dark);
+        padding: 1rem;
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+      }
+    }
+  }
+  .customers-data-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  .search-bar {
+    margin-bottom: 20px;
+    input {
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      width: 40%;
+      margin-right: 10px;
+    }
+    button {
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      background-color: #f2f2f2;
+    }
+  }
+
+  .sort-icon {
+    margin-left: 5px;
+  }
+
+  .asc::before {
+    content: "\25B2"; /* Up arrow */
+  }
+
+  .desc::before {
+    content: "\25BC"; /* Down arrow */
+  }
+  
+  /* Modal Styles */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    place-items: center;
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(5px);
+  }
+
+  .modal-content {
+    background-color: #fefefe;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    border: 1px solid #888;
+    border-radius: .5rem;
+    width: 35rem;
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: .2rem;
+      label {
+        margin-top: 10px;
+      }
+      input {
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+      }
+      .control-buttons {
+        display: flex;
+        gap: 10px;
+        justify-content: space-between;
+        align-items: center;
+        button {
+          padding: 1rem 2rem;
+          border-radius: 5px;
+          color: white;
+          background-color: var(--primary);
+          cursor: pointer;
+        }
+        #deleteButton {
+          background-color: var(--secondary);
+        }
+      }
+    }
+  }
+
+  .close {
+    color: #aaa;
+    float: right;
+    text-align: right;
+    font-size: 28px;
+    font-weight: bold;
+  }
+
+  .close:hover,
+  .close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+  }
+</style>
+
+<script>
+  function searchCustomers() {
+    // Declare variables
+    var input, filter, table, tr, td, i, txtValue;
+    input = document.getElementById("searchInput");
+    filter = input.value.toUpperCase();
+    table = document.querySelector("table");
+    tr = table.getElementsByTagName("tr");
+
+    // Loop through all table rows, and hide those who don't match the search query
+    for (i = 0; i < tr.length; i++) {
+      td = tr[i].getElementsByTagName("td")[1];
+      if (td) {
+        txtValue = td.textContent || td.innerText;
+        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+          tr[i].style.display = "";
+        } else {
+          tr[i].style.display = "none";
+        }
+      }
+    }
+  }
+
+function sortTable(columnIndex) {
+  const table = document.querySelector("table");
+  const rows = Array.from(table.rows).slice(1);
+  let isAscending = table.getAttribute("data-sort-dir") !== "asc";
+
+  rows.sort((rowA, rowB) => {
+    const cellA = rowA.cells[columnIndex].textContent.trim();
+    const cellB = rowB.cells[columnIndex].textContent.trim();
+
+    const a = isNaN(cellA) ? cellA.toLowerCase() : parseFloat(cellA);
+    const b = isNaN(cellB) ? cellB.toLowerCase() : parseFloat(cellB);
+
+    return isAscending ? (a > b ? 1 : -1) : (a < b ? 1 : -1);
+  });
+
+  table.setAttribute("data-sort-dir", isAscending ? "asc" : "desc");
+  rows.forEach(row => table.appendChild(row));
+
+  // Clear existing icons
+  document.querySelectorAll(".sort-icon").forEach(icon => {
+    icon.classList.remove("asc", "desc");
+  });
+  
+  // Set new icon based on direction
+  const header = table.rows[0].cells[columnIndex];
+  header.querySelector(".sort-icon").classList.add(isAscending ? "asc" : "desc");
+}
+
+
+  // Get the modal
+  var modal = document.getElementById("customerModal");
+
+  // Get the <span> element that closes the modal
+  var span = document.getElementsByClassName("close")[0];
+
+  // When the user clicks on <span> (x), close the modal
+  span.onclick = function() {
+    modal.style.display = "none";
+  }
+
+  // When the user clicks anywhere outside of the modal, close it
+  window.onclick = function(event) {
+    if (event.target == modal) {
+      modal.style.display = "none";
+    }
+  }
+
+  // Add event listener to table rows
+  document.querySelectorAll("table tr").forEach(row => {
+    row.addEventListener("click", function() {
+      var cells = this.getElementsByTagName("td");
+      if (cells.length > 0) {
+        document.getElementById("customerId").value = cells[0].innerText;
+        document.getElementById("customerName").value = cells[1].innerText;
+        document.getElementById("customerEmail").value = cells[2].innerText;
+        document.getElementById("customerPhone").value = cells[3].innerText;
+        document.getElementById("customerLastVisit").value = cells[4].innerText;
+        modal.style.display = "grid";
+      }
+    });
+  });
+  // Function to handle customer deletion
+  document.getElementById("deleteButton").addEventListener("click", function() {
+    const customerId = document.getElementById("customerId").value;
+    if (confirm(`Are you sure you want to delete customer with ID ${customerId}?`)) {
+      fetch(`/customers/delete/${customerId}`, {
+        method: 'DELETE',
+      })
+      .then(response => {
+        if (response.ok) {
+          console.log(`Customer with ID ${customerId} deleted.`);
+          modal.style.display = "none";
+          location.reload(); // Reload the page to reflect changes
+        } else {
+          console.error('Failed to delete customer.');
+        }
+      })
+      .catch(error => console.error('Error:', error));
+    }
+  });
+  
+  // Function to handle customer save
+  document.getElementById("customerForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+    const customerId = document.getElementById("customerId").value;
+    const customerData ={
+      name: document.getElementById("customerName").value,
+      email: document.getElementById("customerEmail").value,
+      phone: document.getElementById("customerPhone").value,
+    };
+
+    fetch(`/customers/update/${customerId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(customerData),
+    })
+    .then(response => {
+      if (response.ok) {
+        console.log(`Customer with ID ${customerId} saved.`);
+        modal.style.display = "none";
+        location.reload(); // Reload the page to reflect changes
+      } else {
+        console.error('Failed to save customer.');
+      }
+    })
+    .catch(error => console.error('Error:', error));
+  });
+</script>
+
+</html>
